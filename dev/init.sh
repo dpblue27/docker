@@ -37,7 +37,7 @@ sudo apt-get install -y nodejs \
 
 echo "Configuring dot files..."
 cd
-mkdir -p git
+mkdir -p Development/git
 
 cd ~/Development/git
 git clone https://github.com/dpblue27/dotfiles.git
@@ -48,11 +48,14 @@ git submodule init
 git submodule update
 
 cd
-rm .bashrc
-ln -s git/dotfiles/bashrc .bashrc
-ln -s git/dotfiles/tmux.conf .tmux.conf
-ln -s git/dotfiles/vimrc .vimrc
-ln -s git/dotfiles/vim .vim
+if [ -f .bashrc ]; then mv .bashrc .bashrc.bak; fi
+ln -s ~/Development/git/dotfiles/bashrc .bashrc
+if [ -f .tmux.conf ]; then mv .tmux.conf .tmux.conf.bak; fi
+ln -s ~/Development/git/dotfiles/tmux.conf .tmux.conf
+if [ -f .vimrc ]; then mv .vimrc .vimrc.bak; fi
+ln -s ~/Development/git/dotfiles/vimrc .vimrc
+if [ -f .vim ]; then mv .vim .vim.bak; fi
+ln -s ~/Development/git/dotfiles/vim .vim
 
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
@@ -65,7 +68,8 @@ make && make install
 
 # tmux complained about bad locale...
 # tmux: need UTF-8 locale (LC_CTYPE) but have ANSI_X3.4-1968
-localedef -f UTF-8 -i en_US en_US.UTF-8
+locale-gen en_US.UTF-8
+update-locale LANG=en_US.UTF-8
 
 echo "Installing tmux plugins..."
 ~/.tmux/plugins/tpm/bin/install_plugins
