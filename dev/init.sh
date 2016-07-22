@@ -1,16 +1,49 @@
 #!/bin/bash
 
-echo "Initializing image..."
+echo "Initializing environment..."
+
+sudo dpkg --add-architecture i386
+sudo apt-get update
+sudo apt-get install -y build-essential \
+                        libc6:i386 \
+                        libncurses5:i386 \
+                        libstdc++6:i386 \
+                        git \
+                        cmake \
+                        vim \
+                        tmux \
+                        python-dev \
+                        global \
+                        autoconf \
+                        automake \
+                        pkg-config \
+                        libevent-dev \
+                        libncurses5-dev \
+                        exuberant-ctags \
+                        curl \
+                        software-properties-common # for add-apt-repository
+
+echo "Installing node, java..."
+sudo add-apt-repository -y ppa:webupd8team/java
+
+curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+
+sudo apt-get update
+sudo apt-get install -y nodejs \
+                        oracle-java7-installer
 
 echo "Configuring dot files..."
 cd
 mkdir -p git
 
-cd ~/git
+cd ~/Development/git
 git clone https://github.com/dpblue27/dotfiles.git
 git clone https://github.com/tmux/tmux.git
 
-cd ~/git/dotfiles
+cd ~/Development/git/dotfiles
 git submodule init
 git submodule update
 
@@ -24,7 +57,7 @@ ln -s git/dotfiles/vim .vim
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 echo "Building tmux..."
-cd ~/git/tmux
+cd ~/Development/git/tmux
 git checkout 2.2
 sh autogen.sh
 ./configure --prefix=$HOME/local/tmux
