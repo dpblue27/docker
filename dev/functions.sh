@@ -13,6 +13,7 @@ function install_packages() {
                           libc6:i386 \
                           libncurses5:i386 \
                           libstdc++6:i386 \
+                          locales \
                           git \
                           cmake \
                           vim \
@@ -21,7 +22,6 @@ function install_packages() {
                           python-pip \
                           python3-dev \
                           python3-pip \
-                          global \
                           autoconf \
                           automake \
                           pkg-config \
@@ -29,23 +29,24 @@ function install_packages() {
                           libncurses5-dev \
                           exuberant-ctags \
                           curl \
+                          wget \
                           llvm-dev \
                           libclang-dev \
                           zlib1g-dev \
                           libssl-dev \
+                          zip \
                           thefuck \
                           software-properties-common # for add-apt-repository
   echo "== Finished installing packages =="
 
-  echo "== Installing neovim, java =="
-  sudo add-apt-repository -y ppa:neovim-ppa/stable
-  sudo add-apt-repository -y ppa:webupd8team/java
-
-  echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-  echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+  echo "== Installing neovim =="
+  sudo add-apt-repository -y ppa:neovim-ppa/unstable
 
   sudo apt-get update
-  sudo apt-get install -y neovim oracle-java7-installer
+  sudo apt-get install -y neovim
+
+  pip2 install neovim
+  pip3 install neovim
 
   sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
   # sudo update-alternatives --config vi
@@ -54,7 +55,9 @@ function install_packages() {
   sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
   # sudo update-alternatives --config editor
 
-  echo "== Finished installing neovim, java == "
+  locale-gen en_US.UTF-8
+
+  echo "== Finished installing neovim == "
 }
 
 function dot_config {
@@ -83,18 +86,14 @@ function build_tmux() {
   git clone https://github.com/tmux/tmux.git
 
   cd tmux
-  git checkout 2.2
+  git checkout 2.5
   sh autogen.sh
   ./configure --prefix=$HOME/local/tmux
-  make && make install
+  make -j `nproc`
+  make install
 
   echo "== Installing tmux plugins...== "
   git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
-
-  # tmux complained about bad locale...
-  # tmux: need UTF-8 locale (LC_CTYPE) but have ANSI_X3.4-1968
-  locale-gen en_US.UTF-8
-  update-locale LANG=en_US.UTF-8
 
   $HOME/.tmux/plugins/tpm/bin/install_plugins
   echo "== Finished installing tmux plugins...== "
@@ -111,7 +110,7 @@ function build_rtags() {
   mkdir build
   cd build
   cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_INSTALL_PREFIX=$HOME/local/rtags ..
-  make -j
+  make -j `nproc`
   make install
 
   if [ `which systemctl` ]; then
@@ -153,7 +152,51 @@ function install_nvm() {
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
+  echo "== Finished installing nvm =="
+}
+
+function install_node() {
+  echo "== Installing installing node =="
   nvm install node
   nvm use node
-  echo "== Finished installing nvm =="
+  echo "== Finished installing node =="
+}
+
+function install_sdkman() {
+  echo "== Installing installing sdkman =="
+  curl -s "https://get.sdkman.io" | bash
+  source "$HOME/.sdkman/bin/sdkman-init.sh"
+  echo "== Finished installing sdkman =="
+}
+
+function install_java() {
+  echo "== Installing installing java =="
+  sdk install java
+  echo "== Finished installing java =="
+}
+
+function install_gradle() {
+  echo "== Installing installing gradle =="
+  sdk install gradle
+  echo "== Finished installing gradle =="
+}
+
+function install_scala() {
+  echo "== Installing installing scala =="
+  sdk install scala
+  echo "== Finished installing scala =="
+}
+
+function build_global() {
+  mkdir -p $HOME/local/src
+  cd $HOME/local/src
+
+  local version='6.5.7'
+  wget http://tamacom.com/global/global-$version.tar.gz
+  tar xvf global-$version.tar.gz
+  cd global-$version
+
+  ./configure --prefix=$HOME/local/global
+  make -j `nproc`
+  make install
 }
