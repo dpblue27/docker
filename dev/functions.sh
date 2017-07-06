@@ -77,6 +77,8 @@ function configure_dot_files() {
   dot_config checkout
   dot_config config status.showUntrackedFiles no
 
+  echo "alias gh='cd /home/$USER'" >> $HOME/.bashrc
+
   echo "== Finished configuring dot files =="
 }
 
