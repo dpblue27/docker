@@ -91,6 +91,7 @@ function build_tmux() {
   ./configure --prefix=$HOME/local/tmux
   make -j `nproc`
   make install
+  make distclean
 
   echo "== Installing tmux plugins...== "
   git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
@@ -112,6 +113,7 @@ function build_rtags() {
   cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_INSTALL_PREFIX=$HOME/local/rtags ..
   make -j `nproc`
   make install
+  make clean
 
   if [ `which systemctl` ]; then
     echo "== Configuring systemd to autostart rdm =="
